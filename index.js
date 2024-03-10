@@ -72,7 +72,7 @@ app.get("/api/users/:_id/logs", (req, res) => {
   const filters = {
     date: {
       $gte: req.query.from,
-      $lt:  req.query.to,
+      $lte:  req.query.to,
     },
   };
   User.findById({_id: req.params._id}).where(filters).limit(req.query.limit).then(data => {
