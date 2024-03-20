@@ -69,14 +69,16 @@ app.post("/api/users/:_id/exercises", (req, res) => {
 });
 
 app.get("/api/users/:_id/logs", (req, res) => {
-  const filters = {
-    date: {
-      $gte: req.query.from,
-      $lt:  req.query.to,
-    },
-  };
-  User.findById({_id: req.params._id}).where(filters).limit(req.query.limit).then(data => {
-    res.json(data)
+  let fromDate = req.query.from ? new Date(req.query.from).getTime() : ""
+  let toDate = req.query.to? new Date(req.query.to).getTime() : ""
+  User.findById({_id: req.params._id}).then(data => {
+    const limit = req.query.limit || 50
+    if (fromDate) {
+      const newData = data.log.filter(e => new Date(e.date).getTime() >= fromDate && new Date(e.date).getTime() <= toDate)
+      res.json({id: data._id, username: data.username, count: newData.length, log: newData.slice(0, limit)})
+    } else if (req.query.limit) {
+      res.json({id: data._id, username: data.username, count: data.log.length, log: data.log.slice(0, limit)})
+    } else {res.json(data)}
   })
 });
 
